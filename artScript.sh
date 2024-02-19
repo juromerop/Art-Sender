@@ -1,8 +1,8 @@
 #! /usr/bin/bash
 
 search=""
-fields=[]
-artworks=5
+fields=""
+artworks=""
 
 while getopts "s:f:a:" opt; do
     case $opt in
@@ -12,4 +12,7 @@ while getopts "s:f:a:" opt; do
     esac
 done
 
-curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search" > art.json
+if [ -z "$fields" ] && [ -n "$search" ] && [ -z "$artworks" ]; then
+    echo "Searching for $search"
+    curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search" > art.json
+fi
