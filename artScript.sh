@@ -3,12 +3,14 @@
 search=""
 fields=""
 artworks=""
+mailTo=""
 
 while getopts "s:f:a:" opt; do
     case $opt in
         s) search=$OPTARG;;
         f) fields=$OPTARG;;
         a) artworks=$OPTARG;;
+        m) mailTo=$OPTARG;;
     esac
 done
 
@@ -34,8 +36,8 @@ if [ -z "$fields" ] && [ -n "$search" ] && [ -z "$artworks" ]; then
         echo "Fields for $fields, searching for $search, and limiting to $artworks"
         curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search&fields=$fields&limit=$artworks" > art.json
     else
-        echo "Invalid input"
-        exit 1
+        echo "Pulling all artwork data"
+        curl -X GET "https://api.artic.edu/api/v1/artworks" > art.json
 fi
 
 echo "Artwork data saved to art.json"
