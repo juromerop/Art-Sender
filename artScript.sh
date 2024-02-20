@@ -5,7 +5,7 @@ fields=""
 artworks=""
 mailTo=""
 
-while getopts "s:f:a:" opt; do
+while getopts "s:f:a:m:" opt; do
     case $opt in
         s) search=$OPTARG;;
         f) fields=$OPTARG;;
@@ -41,3 +41,12 @@ if [ -z "$fields" ] && [ -n "$search" ] && [ -z "$artworks" ]; then
 fi
 
 echo "Artwork data saved to art.json"
+
+if [ -n "$mailTo" ]; then
+    echo "Sending email to $mailTo"
+fi
+
+subject="The artwork data you requested."
+message="Here is the artwork data you requested :)"
+
+echo "$message" | mail -s "$subject" "$mailTo" -A art.json
