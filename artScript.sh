@@ -16,28 +16,28 @@ done
 
 if [ -z "$fields" ] && [ -n "$search" ] && [ -z "$artworks" ]; then
     echo "Searching for $search"
-    curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search" > art.json
+    curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search" | jq '.data' > art.json
     elif [ -n "$fields" ] && [ -z "$search" ] && [ -z "$artworks" ]; then
         echo "Fields for $fields"
-        curl -X GET "https://api.artic.edu/api/v1/artworks?fields=$fields" > art.json
+        curl -X GET "https://api.artic.edu/api/v1/artworks?fields=$fields" | jq '.data' > art.json
     elif [ -z "$fields" ] && [ -z "$search" ] && [ -n "$artworks" ]; then
         echo "Limit for $artworks"
-        curl -X GET "https://api.artic.edu/api/v1/artworks?limit=$artworks" > art.json
+        curl -X GET "https://api.artic.edu/api/v1/artworks?limit=$artworks" | jq '.data' > art.json
     elif [ -z "$fields" ] && [ -n "$search" ] && [ -n "$artworks" ]; then
         echo "Searching for $search and limiting to $artworks"
-        curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search&limit=$artworks" > art.json
+        curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search&limit=$artworks" | jq '.data' > art.json
     elif [ -n "$fields" ] && [ -n "$search" ] && [ -z "$artworks" ]; then
         echo "Fields for $fields and searching for $search"
-        curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search&fields=$fields" > art.json
+        curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search&fields=$fields" | jq '.data' > art.json
     elif [ -n "$fields" ] && [ -z "$search" ] && [ -n "$artworks" ]; then
         echo "Fields for $fields and limiting to $artworks"
-        curl -X GET "https://api.artic.edu/api/v1/artworks?fields=$fields&limit=$artworks" > art.json
+        curl -X GET "https://api.artic.edu/api/v1/artworks?fields=$fields&limit=$artworks" | jq '.data' > art.json
     elif [ -n "$fields" ] && [ -n "$search" ] && [ -n "$artworks" ]; then
         echo "Fields for $fields, searching for $search, and limiting to $artworks"
-        curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search&fields=$fields&limit=$artworks" > art.json
+        curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search&fields=$fields&limit=$artworks" | jq '.data' > art.json
     else
         echo "Pulling all artwork data"
-        curl -X GET "https://api.artic.edu/api/v1/artworks" > art.json
+        curl -X GET "https://api.artic.edu/api/v1/artworks" | jq '.data' > art.json
 fi
 
 echo "Artwork data saved to art.json"
