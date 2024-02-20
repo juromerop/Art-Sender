@@ -42,11 +42,22 @@ fi
 
 echo "Artwork data saved to art.json"
 
+output_pdf="output.pdf"
+
+image_urls=$(jq -r '.[].thumbnail.lqip' art.json | sed 's/data:image\/[^;]*;base64,//')
+
+echo "$image_urls" | while read -r url; do
+    echo "<img src='data:image/jpeg;base64,$url' />" >> images.html
+done
+
+wkhtmltopdf images.html "$output_pdf"
+
 if [ -n "$mailTo" ]; then
     echo "Sending email to $mailTo"
+    subject="The artwork data you requested."
+    message="Here is the artwork data you requested :)"
+    echo "$message" | mail -s "$subject" "$mailTo" -A art.json -A $output_pdf
 fi
 
-subject="The artwork data you requested."
-message="Here is the artwork data you requested :)"
-
-echo "$message" | mail -s "$subject" "$mailTo" -A art.json
+rm images.html
+rm art.json
