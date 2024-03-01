@@ -1,10 +1,12 @@
 #! /usr/bin/bash
 
+# Initialize variables to store user-provided parameters
 search=""
 fields=""
 artworks=""
 mailTo=""
 
+# Parse command-line arguments
 while getopts "s:f:a:m:" opt; do
     case $opt in
         s) search=$OPTARG;;
@@ -14,12 +16,14 @@ while getopts "s:f:a:m:" opt; do
     esac
 done
 
+# If fields are provided, add 'image_id' to the fields list; otherwise, set fields to 'image_id'
 if [ -n "$fields" ]; then
     fields+=",image_id"
     else
         fields="image_id"
 fi
 
+# Construct the API URL and fetch artwork data based on user input
 if [ -z "$fields" ] && [ -n "$search" ] && [ -z "$artworks" ]; then
     echo "Searching for $search"
     curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search" | jq '.data' > art.json
@@ -52,12 +56,15 @@ output_pdf="output.pdf"
 
 image_urls=$(jq -r '.[].image_id' art.json | sed 's/^/https:\/\/www.artic.edu\/iiif\/2\//; s/$/\/full\/843,/')
 
+# Generate HTML file with image URLs
 echo "$image_urls" | while read -r url; do
     echo "<img src='$url/0/default.jpg' />" >> images.html
 done
 
+# Convert HTML to PDF using wkhtmltopdf
 wkhtmltopdf images.html "$output_pdf"
 
+# If email address is provided, send the PDF as an attachment
 if [ -n "$mailTo" ]; then
     echo "Sending email to $mailTo"
     subject="The artwork data you requested."
@@ -65,5 +72,6 @@ if [ -n "$mailTo" ]; then
     echo "$message" | mail -s "$subject" "$mailTo" -A $output_pdf
 fi
 
+# Clean up temporary files
 rm images.html
 # rm art.json
