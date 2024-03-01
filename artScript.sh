@@ -1,18 +1,18 @@
 #! /usr/bin/bash
 
 # Initialize variables to store user-provided parameters
-search=""
+search_query=""
 fields=""
 artworks=""
-mailTo=""
+email_recipient=""
 
 # Parse command-line arguments
 while getopts "s:f:a:m:" opt; do
     case $opt in
-        s) search=$OPTARG;;
+        s) search_query=$OPTARG;;
         f) fields=$OPTARG;;
         a) artworks=$OPTARG;;
-        m) mailTo=$OPTARG;;
+        m) email_recipient=$OPTARG;;
     esac
 done
 
@@ -24,27 +24,27 @@ if [ -n "$fields" ]; then
 fi
 
 # Construct the API URL and fetch artwork data based on user input
-if [ -z "$fields" ] && [ -n "$search" ] && [ -z "$artworks" ]; then
-    echo "Searching for $search"
-    curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search" | jq '.data' > art.json
-    elif [ -n "$fields" ] && [ -z "$search" ] && [ -z "$artworks" ]; then
+if [ -z "$fields" ] && [ -n "$search_query" ] && [ -z "$artworks" ]; then
+    echo "searching for $search_query"
+    curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search_query" | jq '.data' > art.json
+    elif [ -n "$fields" ] && [ -z "$search_query" ] && [ -z "$artworks" ]; then
         echo "Fields for $fields"
         curl -X GET "https://api.artic.edu/api/v1/artworks?fields=$fields" | jq '.data' > art.json
-    elif [ -z "$fields" ] && [ -z "$search" ] && [ -n "$artworks" ]; then
+    elif [ -z "$fields" ] && [ -z "$search_query" ] && [ -n "$artworks" ]; then
         echo "Limit for $artworks"
         curl -X GET "https://api.artic.edu/api/v1/artworks?limit=$artworks" | jq '.data' > art.json
-    elif [ -z "$fields" ] && [ -n "$search" ] && [ -n "$artworks" ]; then
-        echo "Searching for $search and limiting to $artworks"
-        curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search&limit=$artworks" | jq '.data' > art.json
-    elif [ -n "$fields" ] && [ -n "$search" ] && [ -z "$artworks" ]; then
-        echo "Fields for $fields and searching for $search"
-        curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search&fields=$fields" | jq '.data' > art.json
-    elif [ -n "$fields" ] && [ -z "$search" ] && [ -n "$artworks" ]; then
+    elif [ -z "$fields" ] && [ -n "$search_query" ] && [ -n "$artworks" ]; then
+        echo "search_querying for $search_query and limiting to $artworks"
+        curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search_query&limit=$artworks" | jq '.data' > art.json
+    elif [ -n "$fields" ] && [ -n "$search_query" ] && [ -z "$artworks" ]; then
+        echo "Fields for $fields and search_querying for $search_query"
+        curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search_query&fields=$fields" | jq '.data' > art.json
+    elif [ -n "$fields" ] && [ -z "$search_query" ] && [ -n "$artworks" ]; then
         echo "Fields for $fields and limiting to $artworks"
         curl -X GET "https://api.artic.edu/api/v1/artworks?fields=$fields&limit=$artworks" | jq '.data' > art.json
-    elif [ -n "$fields" ] && [ -n "$search" ] && [ -n "$artworks" ]; then
-        echo "Fields for $fields, searching for $search, and limiting to $artworks"
-        curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search&fields=$fields&limit=$artworks" | jq '.data' > art.json
+    elif [ -n "$fields" ] && [ -n "$search_query" ] && [ -n "$artworks" ]; then
+        echo "Fields for $fields, search_querying for $search_query, and limiting to $artworks"
+        curl -X GET "https://api.artic.edu/api/v1/artworks/search?q=$search_query&fields=$fields&limit=$artworks" | jq '.data' > art.json
     else
         echo "Pulling all artwork data"
         curl -X GET "https://api.artic.edu/api/v1/artworks" | jq '.data' > art.json
@@ -65,11 +65,11 @@ done
 wkhtmltopdf images.html "$output_pdf"
 
 # If email address is provided, send the PDF as an attachment
-if [ -n "$mailTo" ]; then
-    echo "Sending email to $mailTo"
+if [ -n "$email_recipient" ]; then
+    echo "Sending email to $email_recipient"
     subject="The artwork data you requested."
     message="Here is the artwork data you requested :)"
-    echo "$message" | mail -s "$subject" "$mailTo" -A $output_pdf
+    echo "$message" | mail -s "$subject" "$email_recipient" -A $output_pdf
 fi
 
 # Clean up temporary files
